@@ -1,0 +1,50 @@
+
+import cv2
+import numpy as np
+
+# Load the image
+image = cv2.imread('path_to_image.jpg')
+
+# Resize the image to 224x224x3
+resized_image = cv2.resize(image, (224, 224))
+
+# Convert to grayscale
+gray_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+
+# Crop the image to extract only the dog
+# Assuming the dog is centrally located in the image
+x, y, w, h = 50, 50, 124, 124  # Replace with suitable coordinates
+cropped_image = gray_image[y:y+h, x:x+w]
+
+# Rotate by 45 degrees
+center = (w // 2, h // 2)
+matrix = cv2.getRotationMatrix2D(center, 45, 1.0)
+rotated_image = cv2.warpAffine(cropped_image, matrix, (w, h))
+
+# Flip left to right
+flipped_image = cv2.flip(rotated_image, 1)
+
+# Gaussian & Median Blurring
+gaussian_blur = cv2.GaussianBlur(flipped_image, (5, 5), 0)
+median_blur = cv2.medianBlur(flipped_image, 5)
+
+# Edge Detection techniques
+edges = cv2.Canny(median_blur, 100, 200)
+
+# Background Subtraction
+# Assuming a static background for subtraction
+background = cv2.imread('path_to_background.jpg')
+foreground = cv2.subtract(background, resized_image)
+
+# Save or display the results
+cv2.imshow('Resized', resized_image)
+cv2.imshow('Grayscale', gray_image)
+cv2.imshow('Cropped', cropped_image)
+cv2.imshow('Rotated', rotated_image)
+cv2.imshow('Flipped', flipped_image)
+cv2.imshow('Gaussian Blur', gaussian_blur)
+cv2.imshow('Median Blur', median_blur)
+cv2.imshow('Edges', edges)
+cv2.imshow('Foreground', foreground)
+cv2.waitKey(0)
+cv2.destroyAllWindows(
